@@ -10,7 +10,7 @@ seajs.use(['jquery'],function($){
     $auto.html('理财计划自动投标监控中。。。');
   }
   var t = setInterval(function(){
-    if(!$p.is(':visible')){
+    if($p.is(':visible')){
       clearInterval(t);
       post();
     }
@@ -21,7 +21,7 @@ seajs.use(['jquery'],function($){
         url:'http://www.renrendai.com/financeplan/applyFinancePlan.action',
         type:'POST',
         data:{
-          financePlanIdStr:53,
+          financePlanIdStr:54,
           cashTypeStr:'INVEST',
           amountStr:20000
         },

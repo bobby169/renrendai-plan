@@ -4,9 +4,34 @@ seajs.use(['jquery', 'dialog'], function ($, Dialog) {
     id = $p.find('.ui-progressbar-circle').attr('href').match(/\d+/)[0],
     $plan = $('.ui-plan-latest').css({position: 'relative'}),
     local = {amountStr: 10000, cashTypeStr: 'INVEST'},
-    $setAuto = $('<a style="cursor:pointer;color: #fff;margin-left: 30px" id="setAuto">（设置）</a>');
-    $msg = $('<span></span>');
-    $auto = $('<div></div>').css({position: 'absolute', top: '0px', left: '0px', width: '100%', height: '30px', lineHeight: '30px', textAlign: 'center', background: 'red', color: 'white'}).appendTo($plan).append($msg).append($setAuto);
+    promise = "",
+    $setAuto = $('<a style="cursor:pointer;color: #fff;margin-left: 30px" id="setAuto">（设置）</a>'),
+    $msg = $('<span></span>'),
+    $auto = $('<div></div>').css({position: 'absolute', top: '0px', left: '0px', width: '100%', height: '30px', lineHeight: '30px', textAlign: 'center', background: 'red', color: 'white',boxShadow:'1px 1px 2px #000'}).appendTo($plan).append($msg).append($setAuto);
+
+
+  function initNotif(){
+    if(window.Notification){
+      Notification.requestPermission();
+    }
+  }
+
+  function notif(msg){
+    if(!window.Notification){
+      return;
+    }
+    if(window.Notification.permission == "granted"){
+      var notification = new Notification("理财计划自动投标提示：", {
+        dir: "auto",
+        tag: "testTag",
+        icon: "/static/img/notifi/LOAN_OPEN_TIMEOUT.png",
+        body: msg
+      });
+    }else{
+      window.Notification.requestPermission();
+    }
+
+  }
 
   if ($('.login-link').parents('.ui-nav').is(':visible')) {
     $auto.html('未监控理财计划，您还未登录！<a href="/loginPage.action?returnUrl=/">立即登录</a>');
@@ -22,7 +47,6 @@ seajs.use(['jquery', 'dialog'], function ($, Dialog) {
     trigger: '#setAuto',
     width: '400px'
   }).before('show',function () {
-
       var cookie = getParam(readCookie('mei'));
       if (cookie.amountStr) {
         $form.find('input[name="amountStr"]').val(cookie.amountStr).end().find('input[name="cashTypeStr"]').filter(function () {
@@ -33,6 +57,7 @@ seajs.use(['jquery', 'dialog'], function ($, Dialog) {
       }
 
       this.set('content', $form);
+      initNotif();
     });
 
   $form.submit(function (e) {
@@ -74,6 +99,7 @@ seajs.use(['jquery', 'dialog'], function ($, Dialog) {
       success: function (data) {
         var res = $.trim(data.match(/<div .* data-message="(.*)" style/)[1]);
         $msg.html(res);
+        notif(res);
         if (res == '理财计划申请成功！' || res == '追加额度成功！' || res == '账户余额不足，请先充值。' || n >= 30) {
           return;
         }
